@@ -9,4 +9,6 @@ This is a living document, it will change as the project progresses.
 - The `readme` branch is the branch where the documentation is written. This branch is merged with the main branch after every documentation update.
 - Feature branches have a name in the format `FE-feature_number: Feature name`. After the implementation of a certain feature, this branch is merged into the `development` branch. After merging the feature branch into the `development` branch, the mentioned feature branch should be deleted.
 
-## HOW TO
+## FEATURE LIST:
+
+### FE-1: HTTP(S) Server
