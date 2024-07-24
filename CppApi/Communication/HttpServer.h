@@ -5,6 +5,13 @@
 #include <boost/beast.hpp>
 #include <boost/asio/ssl.hpp>
 
+
+/* TODO:
+ *  - Prepare Http Session
+ *  - Prepare Http Listener
+ *  - Prepare SSL context
+ *  - Prepare multi threading */
+
 namespace Communication {
 
 class HttpsSession : public std::enable_shared_from_this<HttpsSession> {
