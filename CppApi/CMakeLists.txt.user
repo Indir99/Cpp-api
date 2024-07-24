@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 13.0.0, 2024-07-20T15:40:38. -->
+<!-- Written by QtCreator 13.0.0, 2024-07-24T18:42:44. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -396,10 +396,11 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">CppApi</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.CppApi</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">CppApi</value>
-    <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseTerminal">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/indir/Cpp-applications/CppApi/CppApi/build/Desktop-Debug</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
