@@ -5,6 +5,24 @@
 #include <boost/beast.hpp>
 #include <boost/asio/ssl.hpp>
 
+
+/* TODO:
+ *  - Prepare Http Session
+ *  - Prepare Http Listener
+ *  - Prepare SSL context
+ *  - Prepare multi threading
+ *  - Prepare new io_context for every incoming session
+*   - Prepare logger  */
+
+
+// How it should work:
+// When we start server we want to listen for incomming requests:
+// When request arrive, we want to open a session and handle incomming request
+// We need new thread for every session
+// We simply want to handle a couple of requests at same time
+// For now, we will keep it simple
+// We will handle just one request at the time
+
 namespace Communication {
 
 class HttpsSession : public std::enable_shared_from_this<HttpsSession> {
@@ -69,7 +87,7 @@ private:
 class HttpsListener : public std::enable_shared_from_this<HttpsListener> {
 
 public:
-    explicit HttpsListener(std::string address, unsigned short port, boost::asio::ssl::context& sslContext);
+    explicit HttpsListener(std::string address, unsigned short port, boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext);
     ~HttpsListener();
     HttpsListener(const HttpsListener& other) = delete;
     HttpsListener(HttpsListener&& other) = delete;
@@ -84,7 +102,7 @@ private:
     void OnAccept(boost::beast::error_code ec,
                   boost::asio::ip::tcp::socket stream);
 
-    boost::asio::io_context m_ioContext;
+    boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::acceptor m_acceptor;
     boost::asio::ssl::context& m_sslContext;
     std::string m_address;
@@ -107,7 +125,9 @@ private:
     std::string m_address;
     unsigned short m_port;
     boost::asio::ssl::context m_sslContext;
+    boost::asio::io_context m_ioContext;
     std::shared_ptr<HttpsListener> m_listener;
+    std::vector<std::thread> m_threadPool;  // Thread pool to handle multiple connections
 
 };
 

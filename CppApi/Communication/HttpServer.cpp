@@ -33,7 +33,7 @@ void HttpsSession::OnRead(boost::beast::error_code ec,
                           std::size_t bytesTransferred) {
     boost::ignore_unused(bytesTransferred);
     if(ec) {
-        //Error handling
+        // TODO: Look at what can go wrong in this case. If an error occurs, notify the sender
     }
     Write();
 }
@@ -92,6 +92,9 @@ boost::beast::http::response<boost::beast::http::string_body> HttpsSession::Hand
         m_request.target().find("..") != boost::beast::string_view::npos)
         return bad_request("Illegal request-target");
 
+    // TODO: Respond to all types of requests
+
+
     // Respond to POST request
     http::response<http::string_body> res{http::status::ok, m_request.version()};
     res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
@@ -123,8 +126,8 @@ void HttpsSession::OnWrite(boost::beast::error_code ec,
     Read();
 }
 
-HttpsListener::HttpsListener(std::string address, unsigned short port, boost::asio::ssl::context& sslContext)
-    : m_ioContext{}
+HttpsListener::HttpsListener(std::string address, unsigned short port, boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext)
+    : m_ioContext{ioContext}
     , m_acceptor{m_ioContext}
     , m_sslContext{sslContext}
     , m_address{address}
@@ -172,7 +175,6 @@ void HttpsListener::Accept(){
     m_acceptor.async_accept(m_ioContext,
                             boost::beast::bind_front_handler(&HttpsListener::OnAccept,
                                                              shared_from_this()));
-    m_ioContext.run();
 }
 
 void HttpsListener::OnAccept(boost::beast::error_code ec,
@@ -181,24 +183,37 @@ void HttpsListener::OnAccept(boost::beast::error_code ec,
         //Error Handling
     } else {
         //Prepare Session
+        // TODO: For every session we want a new thread
         auto session{std::make_shared<HttpsSession>(std::move(stream), m_sslContext)};
         session->Run();
     }
+    Accept();
 }
 
 HttpsServer::HttpsServer(std::string address, unsigned short port)
     : m_address{address}
     , m_port{port}
     , m_sslContext(boost::asio::ssl::context::tlsv13_server)
-    , m_listener{std::make_shared<HttpsListener>(address, port, m_sslContext)} {
+    , m_ioContext{}
+    , m_listener{std::make_shared<HttpsListener>(address, port, m_ioContext, m_sslContext)} {
 }
 
 HttpsServer::~HttpsServer(){}
 
 void HttpsServer::Run() {
+
     m_listener->Run();
+    // Create a thread pool
+    const std::size_t threadCount = std::thread::hardware_concurrency(); // Or choose a fixed number
+    for (std::size_t i = 0; i < threadCount; ++i) {
+        m_threadPool.emplace_back([this]{
+            m_ioContext.run();
+        });
+    }
+    // Join all threads
+    for (auto& t : m_threadPool) {
+        t.join();
+    }
 }
 
-
-
-} // Networking
+} // Communication
