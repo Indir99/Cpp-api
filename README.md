@@ -12,3 +12,9 @@ This is a living document, it will change as the project progresses.
 ## FEATURE LIST:
 
 ### FE-1: HTTP(S) Server
+
+Missing description
+
+### FE-2: Logger
+
+Missing description
