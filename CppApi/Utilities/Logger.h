@@ -16,67 +16,56 @@ enum class LogLevel {
 };
 
 /**
- * @brief Logger class for logging messages with different severity levels.
+ * @class Logger
+ * @brief A thread-safe logger class that provides logging functionality with various log levels.
  *
- * This class implements a thread-safe singleton logger that can be used
- * to log messages at different log levels (Debug, Info, Warning, Error).
+ * This class allows logging messages to the console or to a file (TODO: need implementation).
+ * It supports multiple log levels such as Debug, Info, Warning, and Error.
+ * The logger uses a mutex to ensure thread safety.
  */
 class Logger {
 
 public:
-
-    /**
-     * @brief Get the singleton instance of the Logger.
-     *
-     * This is a thread-safe method to retrieve the global instance of the Logger.
-     *
-     * @return Logger& Reference to the singleton Logger instance.
-     */
-    static Logger& GetInstance();
-
-    /**
-     * @brief Log a message with a specific log level.
-     *
-     * Logs a message to the console (or file) if the message's log level is greater than
-     * or equal to the current log level. Thread-safe using a mutex.
-     *
-     * @param level The log level (Debug, Info, Warning, Error).
-     * @param message The message to log.
-     */
-    void Log(LogLevel level, const std::string& message);
-
-    /**
-     * @brief Set the log level threshold.
-     *
-     * Only messages with a log level greater than or equal to this threshold will be logged.
-     *
-     * @param level The log level threshold.
-     */
-    void SetLogLevel(LogLevel level);
-
-private:
-
-    Logger() = default;
+    explicit Logger(LogLevel level);
     ~Logger() = default;
+
     Logger(const Logger&) = delete;
     Logger(Logger&&) = delete;
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
     /**
-     * @brief Helper function to get the current time as a string.
+     * @brief Logs a message with the given log level.
      *
-     * This method returns the current system time formatted as a string.
+     * @param level The log level (Debug, Info, Warning, Error).
+     * @param message The message to log.
      *
-     * @return std::string The current time in the format "YYYY-MM-DD HH:MM:SS".
+     * Logs the message only if the provided log level is greater than or equal to the logger's current log level.
+     * The message is timestamped and written to the console (or file if implemented).
+     * This method is thread-safe.
+     */
+    void Log(LogLevel level, const std::string& message);
+
+    /**
+     * @brief Sets the log level of the logger.
+     *
+     * @param level The log level to set (Debug, Info, Warning, Error).
+     *
+     * Only messages with a log level greater than or equal to the set log level will be logged.
+     */
+    void ChangeLogLevel(LogLevel level);
+
+private:
+
+    /**
+     * @brief Helper function to get the current time as a formatted string.
+     *
+     * @return A string representing the current time in the format "YYYY-MM-DD HH:MM:SS".
      */
     std::string GetCurrentTime();
 
-    // Singleton instance
-    static std::unique_ptr<Logger> m_instance; ///< Pointer to the singleton Logger instance.
-    static std::once_flag m_initInstanceFlag; ///< Flag for initializing the Logger instance.
     // Log level threshold
-    LogLevel m_logLevel = LogLevel::Info;
+    LogLevel m_logLevel;
     // For thread-safe logging
     std::mutex m_logMutex;
 };
