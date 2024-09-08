@@ -17,4 +17,20 @@ Missing description
 
 ### FE-2: Logger
 
-Missing description
+The `Logger` class provides a thread-safe mechanism for logging messages with various levels of severity. It is designed to handle log messages safely in a multithreaded environment and supports multiple logging levels.
+
+#### Key Features
+
+- **Thread-Safety**:
+
+  - Uses `std::mutex` to ensure that logging operations are thread-safe.
+  - Prevents race conditions and ensures consistent log output even when multiple threads are writing logs simultaneously.
+
+- **Log Levels**:
+
+  - Supports multiple log levels: `Debug`, `Info`, `Warning`, and `Error`.
+  - Allows filtering of log messages based on their importance, helping you control the verbosity of logging output.
+
+- **Timestamping**:
+  - Each log message is prefixed with a timestamp.
+  - Provides context for when the message was logged, aiding in debugging and tracking application behavior over time.
