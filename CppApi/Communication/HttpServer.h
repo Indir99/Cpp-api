@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <boost/asio/ssl.hpp>
+#include "../Utilities/Logger.h"
 
 
 /* TODO:
@@ -28,7 +29,8 @@ namespace Communication {
 class HttpsSession : public std::enable_shared_from_this<HttpsSession> {
 
 public:
-    explicit HttpsSession(boost::asio::ip::tcp::socket&& socket,
+    explicit HttpsSession(Utilities::Logger& logger,
+                          boost::asio::ip::tcp::socket&& socket,
                           boost::asio::ssl::context& sslContext);
     ~HttpsSession();
     HttpsSession(const HttpsSession& other) = delete;
@@ -77,6 +79,7 @@ private:
 
     void CloseSocket();
 
+    Utilities::Logger& m_logger;
     boost::beast::flat_buffer m_buffer;
     boost::beast::http::request<boost::beast::http::string_body> m_request;
     boost::beast::http::response<boost::beast::http::string_body> m_response;
@@ -87,7 +90,11 @@ private:
 class HttpsListener : public std::enable_shared_from_this<HttpsListener> {
 
 public:
-    explicit HttpsListener(std::string address, unsigned short port, boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext);
+    explicit HttpsListener(Utilities::Logger& logger,
+                           std::string address,
+                           unsigned short port,
+                           boost::asio::io_context& ioContext,
+                           boost::asio::ssl::context& sslContext);
     ~HttpsListener();
     HttpsListener(const HttpsListener& other) = delete;
     HttpsListener(HttpsListener&& other) = delete;
@@ -105,6 +112,7 @@ private:
     boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::acceptor m_acceptor;
     boost::asio::ssl::context& m_sslContext;
+    Utilities::Logger& m_logger;
     std::string m_address;
     unsigned short m_port;
 };
@@ -113,7 +121,9 @@ private:
 class HttpsServer : public std::enable_shared_from_this<HttpsServer> {
 public:
     //TODO: Implement server class that will manipulate with Listener and Sessions
-    explicit HttpsServer(std::string address, unsigned short port);
+    explicit HttpsServer(Utilities::Logger& logger,
+                         std::string address,
+                         unsigned short port);
     ~HttpsServer();
     HttpsServer(const HttpsServer& other) = delete;
     HttpsServer(HttpsServer&& other) = delete;
@@ -122,6 +132,7 @@ public:
     void Run();
 
 private:
+    Utilities::Logger& m_logger;
     std::string m_address;
     unsigned short m_port;
     boost::asio::ssl::context m_sslContext;
