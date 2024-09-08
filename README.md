@@ -34,3 +34,5 @@ The `Logger` class provides a thread-safe mechanism for logging messages with va
 - **Timestamping**:
   - Each log message is prefixed with a timestamp.
   - Provides context for when the message was logged, aiding in debugging and tracking application behavior over time.
+
+### FE-3: Logger integration
