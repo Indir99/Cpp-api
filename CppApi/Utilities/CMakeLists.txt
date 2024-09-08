@@ -2,6 +2,8 @@
 set(SOURCES
     StringUtils.h
     StringUtils.cpp
+    Logger.h
+    Logger.cpp
 )
 
 # Create a library or executable target for the source files
