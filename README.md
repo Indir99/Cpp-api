@@ -36,3 +36,5 @@ The `Logger` class provides a thread-safe mechanism for logging messages with va
   - Provides context for when the message was logged, aiding in debugging and tracking application behavior over time.
 
 ### FE-3: Logger integration
+
+Integration of previously implemented logger in Https Server. From this point on, all messages will be logged using the logger.
