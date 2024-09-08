@@ -2,15 +2,20 @@
 
 namespace Communication {
 
-HttpsSession::HttpsSession(boost::asio::ip::tcp::socket&& socket,
+HttpsSession::HttpsSession(Utilities::Logger& logger,
+                           boost::asio::ip::tcp::socket&& socket,
                            boost::asio::ssl::context& sslContext)
     : m_sslContext{sslContext}
     , m_stream{std::move(socket), sslContext}
+    , m_logger{logger}
 {}
 
 HttpsSession::~HttpsSession(){}
 
 void HttpsSession::Run(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsSessionRun");
+
     // We need to be executing within a strand to perform async operations
     // on the I/O objects in this session. Although not strictly necessary
     // for single-threaded contexts, this example code is written to be
@@ -21,6 +26,9 @@ void HttpsSession::Run(){
 }
 
 void HttpsSession::Read(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsSessionRead");
+
     m_request = {};
     boost::beast::http::async_read(m_stream.next_layer(),
                                    m_buffer,
@@ -31,6 +39,7 @@ void HttpsSession::Read(){
 
 void HttpsSession::OnRead(boost::beast::error_code ec,
                           std::size_t bytesTransferred) {
+
     boost::ignore_unused(bytesTransferred);
     if(ec) {
         // TODO: Look at what can go wrong in this case. If an error occurs, notify the sender
@@ -38,8 +47,10 @@ void HttpsSession::OnRead(boost::beast::error_code ec,
     Write();
 }
 
-boost::beast::http::response<boost::beast::http::string_body> HttpsSession::HandleRequest()
-{
+boost::beast::http::response<boost::beast::http::string_body> HttpsSession::HandleRequest() {
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsSessionHandleRequest");
+
     namespace http = boost::beast::http;
     // Returns a bad request response
     auto const bad_request =
@@ -107,6 +118,9 @@ boost::beast::http::response<boost::beast::http::string_body> HttpsSession::Hand
 }
 
 void HttpsSession::Write(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsSessionWrite");
+
     m_response = HandleRequest();
     // Write the response
     boost::beast::http::async_write(m_stream.next_layer(),
@@ -117,6 +131,7 @@ void HttpsSession::Write(){
 
 void HttpsSession::OnWrite(boost::beast::error_code ec,
                            std::size_t bytes_transferred) {
+
     boost::ignore_unused(bytes_transferred);
 
     if(ec) {
@@ -126,22 +141,33 @@ void HttpsSession::OnWrite(boost::beast::error_code ec,
     Read();
 }
 
-HttpsListener::HttpsListener(std::string address, unsigned short port, boost::asio::io_context& ioContext, boost::asio::ssl::context& sslContext)
+HttpsListener::HttpsListener(Utilities::Logger& logger,
+                             std::string address,
+                             unsigned short port,
+                             boost::asio::io_context& ioContext,
+                             boost::asio::ssl::context& sslContext)
     : m_ioContext{ioContext}
     , m_acceptor{m_ioContext}
     , m_sslContext{sslContext}
     , m_address{address}
-    , m_port{port} {
+    , m_port{port}
+    , m_logger{logger}{
 }
 
 HttpsListener::~HttpsListener(){}
 
 void HttpsListener::Run(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsListenerRun");
+
     PrepareAcceptor();
     Accept();
 }
 
 void HttpsListener::PrepareAcceptor(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsListenerPrepareAcceptor");
+
     boost::beast::error_code ec;
     boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::make_address(m_address), m_port};
 
@@ -172,6 +198,9 @@ void HttpsListener::PrepareAcceptor(){
 }
 
 void HttpsListener::Accept(){
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsListenerAccept");
+
     m_acceptor.async_accept(m_ioContext,
                             boost::beast::bind_front_handler(&HttpsListener::OnAccept,
                                                              shared_from_this()));
@@ -179,28 +208,34 @@ void HttpsListener::Accept(){
 
 void HttpsListener::OnAccept(boost::beast::error_code ec,
                              boost::asio::ip::tcp::socket stream){
+
     if(ec){
         //Error Handling
     } else {
         //Prepare Session
         // TODO: For every session we want a new thread
-        auto session{std::make_shared<HttpsSession>(std::move(stream), m_sslContext)};
+        auto session{std::make_shared<HttpsSession>(m_logger, std::move(stream), m_sslContext)};
         session->Run();
     }
     Accept();
 }
 
-HttpsServer::HttpsServer(std::string address, unsigned short port)
+HttpsServer::HttpsServer(Utilities::Logger& logger,
+                         std::string address,
+                         unsigned short port)
     : m_address{address}
     , m_port{port}
     , m_sslContext(boost::asio::ssl::context::tlsv13_server)
     , m_ioContext{}
-    , m_listener{std::make_shared<HttpsListener>(address, port, m_ioContext, m_sslContext)} {
+    , m_listener{std::make_shared<HttpsListener>(logger, address, port, m_ioContext, m_sslContext)}
+    , m_logger{logger} {
 }
 
 HttpsServer::~HttpsServer(){}
 
 void HttpsServer::Run() {
+
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsServerRun");
 
     m_listener->Run();
     // Create a thread pool
