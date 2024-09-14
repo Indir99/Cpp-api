@@ -38,5 +38,4 @@ private:
     unsigned short m_port;
 };
 
-
 } // Communication

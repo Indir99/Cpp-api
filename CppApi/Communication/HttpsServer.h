@@ -8,12 +8,10 @@
 #include "HttpsListener.h"
 
 /* TODO:
- *  - Prepare Http Session
- *  - Prepare Http Listener
- *  - Prepare SSL context
- *  - Prepare multi threading
- *  - Prepare new io_context for every incoming session
-*   - Prepare logger  */
+ *  - Prepare SSL context (explore it first)
+ *  - Chose between Http and Https server
+ *  - Explore difference between Http and Https server
+ */
 
 
 // How it should work:
@@ -28,7 +26,6 @@ namespace Communication {
 
 class HttpsServer : public std::enable_shared_from_this<HttpsServer> {
 public:
-    //TODO: Implement server class that will manipulate with Listener and Sessions
     explicit HttpsServer(Utilities::Logger& logger,
                          std::string address,
                          unsigned short port);
@@ -47,7 +44,6 @@ private:
     boost::asio::io_context m_ioContext;
     std::shared_ptr<HttpsListener> m_listener;
     std::vector<std::thread> m_threadPool;  // Thread pool to handle multiple connections
-
 };
 
 } // Communication

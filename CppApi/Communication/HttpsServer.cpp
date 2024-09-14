@@ -2,6 +2,7 @@
 
 namespace Communication {
 
+// TODO: Write doxygen comment
 HttpsServer::HttpsServer(Utilities::Logger& logger,
                          std::string address,
                          unsigned short port)
@@ -13,11 +14,13 @@ HttpsServer::HttpsServer(Utilities::Logger& logger,
     , m_logger{logger} {
 }
 
+// TODO: Write doxygen comment
 HttpsServer::~HttpsServer(){}
 
+// TODO: Write doxygen comment
 void HttpsServer::Run() {
 
-    m_logger.Log(Utilities::LogLevel::Debug, "HttpsServerRun");
+    m_logger.Log(Utilities::LogLevel::Debug, "HttpsServer Run Method");
 
     m_listener->Run();
     // Create a thread pool
